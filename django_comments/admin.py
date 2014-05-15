@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 
 from django_comments.models import Comment
 from django_comments import get_model
-from django_comments.views.moderation import perform_flag, perform_approve, perform_delete
+from django_comments.views.moderation import perform_approve, perform_delete
 
 
 class UsernameSearch(object):
@@ -37,7 +37,7 @@ class CommentsAdmin(admin.ModelAdmin):
     ordering = ('-submit_date',)
     raw_id_fields = ('user',)
     search_fields = ('comment', UsernameSearch(), 'user_name', 'user_email', 'user_url', 'ip_address')
-    actions = ["flag_comments", "approve_comments", "remove_comments"]
+    actions = ["approve_comments", "remove_comments"]
 
     def get_actions(self, request):
         actions = super(CommentsAdmin, self).get_actions(request)
@@ -51,11 +51,6 @@ class CommentsAdmin(admin.ModelAdmin):
                 actions.pop('remove_comments')
         return actions
 
-    def flag_comments(self, request, queryset):
-        self._bulk_flag(request, queryset, perform_flag,
-                        lambda n: ungettext('flagged', 'flagged', n))
-    flag_comments.short_description = _("Flag selected comments")
-
     def approve_comments(self, request, queryset):
         self._bulk_flag(request, queryset, perform_approve,
                         lambda n: ungettext('approved', 'approved', n))
@@ -68,7 +63,7 @@ class CommentsAdmin(admin.ModelAdmin):
 
     def _bulk_flag(self, request, queryset, action, done_message):
         """
-        Flag, approve, or remove some comments from an admin action. Actually
+        Approve, or remove some comments from an admin action. Actually
         calls the `action` argument to perform the heavy lifting.
         """
         n_comments = 0

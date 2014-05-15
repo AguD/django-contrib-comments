@@ -10,15 +10,13 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from django_comments.managers import CommentManager
 
-COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 3000)
-
+COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 1500)
 
 class BaseCommentAbstractModel(models.Model):
     """
     An abstract base class that any custom comment models probably should
     subclass.
     """
-
     # Content-object field
     content_type = models.ForeignKey(ContentType,
             verbose_name=_('content type'),
@@ -53,10 +51,6 @@ class Comment(BaseCommentAbstractModel):
     # was posted by a non-authenticated user.
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
                     blank=True, null=True, related_name="%(class)s_comments")
-    user_name = models.CharField(_("user's name"), max_length=50, blank=True)
-    user_email = models.EmailField(_("user's email address"), blank=True)
-    user_url = models.URLField(_("user's URL"), blank=True)
-
     comment = models.TextField(_('comment'), max_length=COMMENT_MAX_LENGTH)
 
     # Metadata about the comment
@@ -69,12 +63,11 @@ class Comment(BaseCommentAbstractModel):
                     help_text=_('Check this box if the comment is inappropriate. ' \
                                 'A "This comment has been removed" message will ' \
                                 'be displayed instead.'))
-
     # Manager
     objects = CommentManager()
 
     class Meta:
-        db_table = "django_comments"
+        db_table = "comments"
         ordering = ('submit_date',)
         permissions = [("can_moderate", "Can moderate comments")]
         verbose_name = _('comment')
@@ -159,43 +152,3 @@ class Comment(BaseCommentAbstractModel):
             'url': self.get_absolute_url()
         }
         return _('Posted by %(user)s at %(date)s\n\n%(comment)s\n\nhttp://%(domain)s%(url)s') % d
-
-
-@python_2_unicode_compatible
-class CommentFlag(models.Model):
-    """
-    Records a flag on a comment. This is intentionally flexible; right now, a
-    flag could be:
-
-        * A "removal suggestion" -- where a user suggests a comment for (potential) removal.
-
-        * A "moderator deletion" -- used when a moderator deletes a comment.
-
-    You can (ab)use this model to add other flags, if needed. However, by
-    design users are only allowed to flag a comment with a given flag once;
-    if you want rating look elsewhere.
-    """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'), related_name="comment_flags")
-    comment = models.ForeignKey(Comment, verbose_name=_('comment'), related_name="flags")
-    flag = models.CharField(_('flag'), max_length=30, db_index=True)
-    flag_date = models.DateTimeField(_('date'), default=None)
-
-    # Constants for flag types
-    SUGGEST_REMOVAL = "removal suggestion"
-    MODERATOR_DELETION = "moderator deletion"
-    MODERATOR_APPROVAL = "moderator approval"
-
-    class Meta:
-        db_table = 'django_comment_flags'
-        unique_together = [('user', 'comment', 'flag')]
-        verbose_name = _('comment flag')
-        verbose_name_plural = _('comment flags')
-
-    def __str__(self):
-        return "%s flag of comment ID %s by %s" % \
-            (self.flag, self.comment_id, self.user.get_username())
-
-    def save(self, *args, **kwargs):
-        if self.flag_date is None:
-            self.flag_date = timezone.now()
-        super(CommentFlag, self).save(*args, **kwargs)

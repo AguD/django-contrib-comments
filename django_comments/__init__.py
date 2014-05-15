@@ -8,6 +8,8 @@ from django_comments.forms import CommentForm
 
 DEFAULT_COMMENTS_APP = 'django_comments'
 
+default_app_config = 'django_comments.apps.CommentsConfig'
+
 def get_comment_app():
     """
     Get the comment app (i.e. "django_comments") as defined in the settings

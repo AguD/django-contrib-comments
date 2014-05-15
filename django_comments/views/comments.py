@@ -36,14 +36,7 @@ def post_comment(request, next=None, using=None):
     HTTP POST is required. If ``POST['submit'] == "preview"`` or if there are
     errors a preview template, ``comments/preview.html``, will be rendered.
     """
-    # Fill out some initial data fields from an authenticated user, if present
     data = request.POST.copy()
-    if request.user.is_authenticated():
-        if not data.get('name', ''):
-            data["name"] = request.user.get_full_name() or request.user.get_username()
-        if not data.get('email', ''):
-            data["email"] = request.user.email
-
     # Look up the object we're trying to comment about
     ctype = data.get("content_type")
     object_pk = data.get("object_pk")
@@ -67,13 +60,10 @@ def post_comment(request, next=None, using=None):
         return CommentPostBadRequest(
             "Attempting go get content-type %r and object PK %r exists raised %s" % \
                 (escape(ctype), escape(object_pk), e.__class__.__name__))
-
     # Do we want to preview the comment?
     preview = "preview" in data
-
     # Construct the comment form
     form = django_comments.get_form()(target, data=data)
-
     # Check security information
     if form.security_errors():
         return CommentPostBadRequest(
@@ -83,12 +73,6 @@ def post_comment(request, next=None, using=None):
     # If there are errors or if we requested a preview show the comment
     if form.errors or preview:
         template_list = [
-            # These first two exist for purely historical reasons.
-            # Django v1.0 and v1.1 allowed the underscore format for
-            # preview templates, so we have to preserve that format.
-            "comments/%s_%s_preview.html" % (model._meta.app_label, model._meta.module_name),
-            "comments/%s_preview.html" % model._meta.app_label,
-            # Now the usual directory based template hierarchy.
             "comments/%s/%s/preview.html" % (model._meta.app_label, model._meta.module_name),
             "comments/%s/preview.html" % model._meta.app_label,
             "comments/preview.html",
@@ -114,12 +98,10 @@ def post_comment(request, next=None, using=None):
         comment=comment,
         request=request
     )
-
     for (receiver, response) in responses:
         if response == False:
             return CommentPostBadRequest(
                 "comment_will_be_posted receiver %r killed the comment" % receiver.__name__)
-
     # Save the comment and signal that it was saved
     comment.save()
     signals.comment_was_posted.send(
