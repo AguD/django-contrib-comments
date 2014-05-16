@@ -1,10 +1,20 @@
-<dl id="comments">
+{% load qhonuskan_votes static %}
+<div class="comments-wrapper">
   {% for comment in comment_list %}
-    <dt id="c{{ comment.id }}">
-        {{ comment.submit_date }} - {{ comment.name }}
-    </dt>
-    <dd>
-        <p>{{ comment.comment }}</p>
-    </dd>
+  <div class="media comment" id="c{{comment.id}}">
+    <a class="pull-left" href="">
+        <img src="{{ comment.user }}" class="media-object image-user"/>
+    </a> 
+    <div class="media-body"> 
+        <div class="media-heading">
+          <a class="lead{% if comment.user.is_staff %} is-staff{% endif %}" href="">
+            <strong>{{ comment.user }}&nbsp</strong>
+          </a>
+          {% vote_buttons_for comment %}          
+        </div>        
+        <p>{{ comment.comment|linebreaksbr }}</p>
+        <small class="text-muted">{{ comment.submit_date|date:"d \d\e F \a \l\a\s G:i \h\s\." }}</small>
+    </div>
+  </div>     
   {% endfor %}
-</dl>
+</div>

@@ -10,10 +10,12 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
+from django.core.urlresolvers import reverse_lazy
 
 import django_comments
 from django_comments import signals
 from django_comments.views.utils import next_redirect, confirmation_view
+from common.views import AjaxifiedFormView, CsrfProtectMixin
 
 class CommentPostBadRequest(http.HttpResponseBadRequest):
     """
@@ -29,7 +31,7 @@ class CommentPostBadRequest(http.HttpResponseBadRequest):
 
 @csrf_protect
 @require_POST
-def post_comment(request, next=None, using=None):
+def postt_comment(request, next=None, using=None):
     """
     Post a comment.
 
@@ -117,3 +119,103 @@ comment_done = confirmation_view(
     template="comments/posted.html",
     doc="""Display a "comment was posted" success page."""
 )
+
+
+class CommentView(CsrfProtectMixin, AjaxifiedFormView):
+    http_method_names = ['post'] #Only accept post calls
+    template_name = "comments/form.html"
+    form_class = django_comments.get_form()
+    next = None
+
+    def post(self, request, *args, **kwargs):
+        data = request.POST.copy()
+        # Look up the object we're trying to comment about
+        ctype = data.get("content_type")
+        object_pk = data.get("object_pk")
+        if ctype is None or object_pk is None:
+            return CommentPostBadRequest("Missing content_type or object_pk field.")
+        try:
+            self.target_model = models.get_model(*ctype.split(".", 1))
+            target = self.target_model._default_manager.get(pk=object_pk)
+        except TypeError:
+            return CommentPostBadRequest(
+                "Invalid content_type value: %r" % escape(ctype))
+        except AttributeError:
+            return CommentPostBadRequest(
+                "The given content-type %r does not resolve to a valid model." % \
+                    escape(ctype))
+        except ObjectDoesNotExist:
+            return CommentPostBadRequest(
+                "No object matching content-type %r and object PK %r exists." % \
+                    (escape(ctype), escape(object_pk)))
+        except (ValueError, ValidationError) as e:
+            return CommentPostBadRequest(
+                "Attempting go get content-type %r and object PK %r exists raised %s" % \
+                    (escape(ctype), escape(object_pk), e.__class__.__name__))
+        preview = "preview" in data
+        form = django_comments.get_form()(target, data=data)
+        # Check security information
+        if form.security_errors():
+            return CommentPostBadRequest(
+                "The comment form failed security verification: %s" % \
+                    escape(str(form.security_errors())))
+
+        if form.is_valid():
+            return self.form_valid(form)
+        if form.errors or preview:
+            return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        template_list = [
+            "comments/%s/%s/preview.html" % (self.target_model._meta.app_label, self.target_model._meta.module_name),
+            "comments/%s/preview.html" % self.target_model._meta.app_label,
+            "comments/preview.html",
+        ]
+        return render_to_response(
+            template_list, {
+                "comment": form.data.get("comment", ""),
+                "form": form,
+                "next": data.get("next", next),
+            },
+            RequestContext(request, {})
+        )
+
+    def form_valid(self, form):
+        comment = form.get_comment_object()
+        comment.ip_address = self.request.META.get("REMOTE_ADDR", None)
+        if self.request.user.is_authenticated():
+            comment.user = self.request.user
+        # Signal that the comment is about to be saved
+        responses = signals.comment_will_be_posted.send(
+            sender=comment.__class__,
+            comment=comment,
+            request=self.request
+        )
+        for (receiver, response) in responses:
+            if response == False:
+                return CommentPostBadRequest(
+                    "comment_will_be_posted receiver %r killed the comment" % receiver.__name__)
+        # Save the comment and signal that it was saved
+        comment.save()
+        signals.comment_was_posted.send(
+            sender=comment.__class__,
+            comment=comment,
+            request=self.request
+        )
+        self.object = comment
+        http_response = next_redirect(self.request, fallback=self.next or 'comments-comment-done',
+            c=comment._get_pk_val())
+        self.success_url = http_response.get("location")
+        return super(CommentView, self).form_valid(form)
+
+    def ajax_response_valid(self):
+        comment_html = render_to_string(
+            template_name = 'comments/single_comment.html',
+            dictionary = {
+                'comment': self.object,
+                'user': self.request.user
+            }
+        )
+        return dict(success=True, comment_html=comment_html)
+
+post_comment = CommentView.as_view()

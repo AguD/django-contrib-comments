@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_text
+from qhonuskan_votes.models import ObjectsWithScoresManager, SortByScoresManager
 
-class CommentManager(models.Manager):
+class CommentManager(ObjectsWithScoresManager):
 
     def in_moderation(self):
         """

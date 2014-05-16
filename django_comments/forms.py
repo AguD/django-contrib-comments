@@ -94,8 +94,16 @@ class CommentDetailsForm(CommentSecurityForm):
     """
     Handles the specific details of the comment (name, comment, etc.).
     """
-    comment       = forms.CharField(label=_('Comment'), widget=forms.Textarea,
-                                    max_length=COMMENT_MAX_LENGTH)
+    comment       = forms.CharField(
+                        label=_('Comment'),
+                        max_length=COMMENT_MAX_LENGTH,
+                        widget=forms.Textarea(attrs={
+                            'rows':'3',
+                            'class':'form-control'
+                        })
+                    )
+    class Media:
+        js = ('js/comment.js',)
 
     def get_comment_object(self):
         """

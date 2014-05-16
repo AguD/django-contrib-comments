@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
 from django_comments.managers import CommentManager
+from qhonuskan_votes.models import VotesField
 
 COMMENT_MAX_LENGTH = getattr(settings, 'COMMENT_MAX_LENGTH', 1500)
 
@@ -63,6 +64,7 @@ class Comment(BaseCommentAbstractModel):
                     help_text=_('Check this box if the comment is inappropriate. ' \
                                 'A "This comment has been removed" message will ' \
                                 'be displayed instead.'))
+    votes = VotesField()
     # Manager
     objects = CommentManager()
 
@@ -74,7 +76,7 @@ class Comment(BaseCommentAbstractModel):
         verbose_name_plural = _('comments')
 
     def __str__(self):
-        return "%s: %s..." % (self.name, self.comment[:50])
+        return "%s: %s..." % (self.user, self.comment[:50])
 
     def save(self, *args, **kwargs):
         if self.submit_date is None:
