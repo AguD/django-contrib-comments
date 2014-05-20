@@ -32,7 +32,9 @@ function post_comment(e){
         } else if (response.success) {
             comment = $(response.comment_html);
             comments_box.append(comment);
-            comment.addClass('in');
+            comment.fadeIn("slow", function() {
+                comment.addClass('in');
+            });
             //scrollToElement(".comments-wrapper");
         }
         form.data('submitting', false);

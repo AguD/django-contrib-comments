@@ -1,18 +1,17 @@
 {% load qhonuskan_votes static %}
-{% spaceless %}
-<div class="media comment fade" id="c{{comment.id}}">
+{% load thumbnail %}
+<div class="media comment{% if faded %} fade{% endif %}" id="c{{comment.id}}">
   <a class="pull-left" href="">
-      <img src="{{ comment.user }}" class="media-object image-user"/>
+      <img src="{{ comment.user.image.thumb.url }}" class="media-object image-user"/>
   </a> 
   <div class="media-body"> 
       <div class="media-heading">
         <a class="lead{% if comment.user.is_staff %} is-staff{% endif %}" href="">
           <strong>{{ comment.user }}&nbsp</strong>
         </a>
-        {% vote_buttons_for comment %}          
+        {% vote_buttons_for comment %}
       </div>        
       <p>{{ comment.comment|linebreaksbr }}</p>
       <small class="text-muted">{{ comment.submit_date|date:"d \d\e F \a \l\a\s G:i \h\s\." }}</small>
   </div>
 </div>
-{% endspaceless %}

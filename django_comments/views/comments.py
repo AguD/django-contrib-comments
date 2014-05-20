@@ -213,7 +213,8 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
             template_name = 'comments/single_comment.html',
             dictionary = {
                 'comment': self.object,
-                'user': self.request.user
+                'user': self.request.user,
+                'faded': True
             }
         )
         return dict(success=True, comment_html=comment_html)
