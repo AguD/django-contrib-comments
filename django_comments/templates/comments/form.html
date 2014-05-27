@@ -1,5 +1,5 @@
 {% load comments i18n %}
-<form id="comment-form" action="{% comment_form_target %}" method="post">{% csrf_token %}
+<form class="comment-form" action="{% comment_form_target %}" method="post">{% csrf_token %}
   {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
   {% for field in form %}
     {% if field.is_hidden %}
@@ -15,6 +15,6 @@
   {% endfor %}
   <span class="help-inline text-success" id="counter"></span>
   <p class="submit">
-    <input type="submit" name="post" data-loading-text="Subiendo.." class="btn btn-default" value="{% trans "Post" %}" />
+    <input type="submit" name="post" data-loading-text="Subiendo.." class="btn btn-primary" value="{% trans "Post" %}" />
   </p>
 </form>

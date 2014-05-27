@@ -12,10 +12,10 @@ function enter_key(evt){
 
 function post_comment(e){
     var form = $(this),
-        comment_field = $("#id_comment")
+        comment_field = form.find("#id_comment"),
         comment = comment_field.val(),
         subButton = form.find(':input[type="submit"]'),
-        comments_box = $(".comments-wrapper");
+        comments_box = form.parents(".comments-box").find(".comments-list");
 
     e.preventDefault();
     comment = replace_breaklines(comment);
@@ -46,9 +46,7 @@ function post_comment(e){
 // $(document).on("keypress",".comentario", enter_key);
 
 $(document).ready(function() {
-    var comment_input = $("#id_comment");
-
-    $(".comments-wrapper").on({
+    $(".comments-list").on({
         mouseenter: function() {
             $(this).find(".vote_buttons").addClass("in");
         }, mouseleave: function() {
@@ -57,5 +55,5 @@ $(document).ready(function() {
     }, ".comment")
 
     // SUBMIT COMMENT
-    $("#comment-form").on("submit", post_comment);
+    $(".comment-form").on("submit", post_comment);
 });

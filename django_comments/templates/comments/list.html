@@ -1,5 +1,5 @@
-<div class="comments-wrapper">
-  {% for comment in comment_list %}
-  {% include 'comments/single_comment.html' %}
-  {% endfor %}
+<div class="comments-list">
+{% for comment in comment_list %}
+{% include 'comments/single_comment.html' %}
+{% endfor %}
 </div>
