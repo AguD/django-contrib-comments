@@ -208,7 +208,7 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
         self.success_url = http_response.get("location")
         return super(CommentView, self).form_valid(form)
 
-    def ajax_response_valid(self):
+    def ajax_response_valid(self, form):
         comment_html = render_to_string(
             template_name = 'comments/single_comment.html',
             dictionary = {
