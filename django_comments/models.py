@@ -46,10 +46,6 @@ class Comment(BaseCommentAbstractModel):
     """
     A user comment about some object.
     """
-
-    # Who posted this comment? If ``user`` is set then it was an authenticated
-    # user; otherwise at least user_name should have been set and the comment
-    # was posted by a non-authenticated user.
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
                     blank=True, null=True, related_name="%(class)s_comments")
     comment = models.TextField(_('comment'), max_length=COMMENT_MAX_LENGTH)
@@ -92,52 +88,25 @@ class Comment(BaseCommentAbstractModel):
         """
         if not hasattr(self, "_userinfo"):
             userinfo = {
-                "name": self.user_name,
-                "email": self.user_email,
-                "url": self.user_url
+                'name': self.user,
+                'email': self.user.email,
+                'url': self.user.profile.social_profile_link
             }
-            if self.user_id:
-                u = self.user
-                if u.email:
-                    userinfo["email"] = u.email
-
-                # If the user has a full name, use that for the user name.
-                # However, a given user_name overrides the raw user.username,
-                # so only use that if this comment has no associated name.
-                if u.get_full_name():
-                    userinfo["name"] = self.user.get_full_name()
-                elif not self.user_name:
-                    userinfo["name"] = u.get_username()
             self._userinfo = userinfo
         return self._userinfo
     userinfo = property(_get_userinfo, doc=_get_userinfo.__doc__)
 
     def _get_name(self):
         return self.userinfo["name"]
-
-    def _set_name(self, val):
-        if self.user_id:
-            raise AttributeError(_("This comment was posted by an authenticated "\
-                                   "user and thus the name is read-only."))
-        self.user_name = val
-    name = property(_get_name, _set_name, doc="The name of the user who posted this comment")
+    name = property(_get_name, doc="The name of the user who posted this comment")
 
     def _get_email(self):
         return self.userinfo["email"]
-
-    def _set_email(self, val):
-        if self.user_id:
-            raise AttributeError(_("This comment was posted by an authenticated "\
-                                   "user and thus the email is read-only."))
-        self.user_email = val
-    email = property(_get_email, _set_email, doc="The email of the user who posted this comment")
+    email = property(_get_email, doc="The email of the user who posted this comment")
 
     def _get_url(self):
         return self.userinfo["url"]
-
-    def _set_url(self, val):
-        self.user_url = val
-    url = property(_get_url, _set_url, doc="The URL given by the user who posted this comment")
+    url = property(_get_url, doc="The URL given by the user who posted this comment")
 
     def get_absolute_url(self, anchor_pattern="#c%(id)s"):
         return self.get_content_object_url() + (anchor_pattern % self.__dict__)

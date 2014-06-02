@@ -24,7 +24,7 @@ class CommentsAdmin(admin.ModelAdmin):
            {'fields': ('content_type', 'object_pk', 'site')}
         ),
         (_('Content'),
-           {'fields': ('user', 'user_name', 'user_email', 'user_url', 'comment')}
+           {'fields': ('user', 'comment')}
         ),
         (_('Metadata'),
            {'fields': ('submit_date', 'ip_address', 'is_public', 'is_removed')}
@@ -36,7 +36,7 @@ class CommentsAdmin(admin.ModelAdmin):
     date_hierarchy = 'submit_date'
     ordering = ('-submit_date',)
     raw_id_fields = ('user',)
-    search_fields = ('comment', UsernameSearch(), 'user_name', 'user_email', 'user_url', 'ip_address')
+    search_fields = ('comment', UsernameSearch(), 'ip_address')
     actions = ["approve_comments", "remove_comments"]
 
     def get_actions(self, request):
