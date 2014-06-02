@@ -17,6 +17,10 @@ class UsernameSearch(object):
     def __str__(self):
         return 'user__%s' % get_user_model().USERNAME_FIELD
 
+def comment_url(obj):
+    return '<a href="{0}">{1}</a>'.format(obj.get_absolute_url(), obj.content_object)
+comment_url.allow_tags = True
+comment_url.short_description = 'Link'
 
 class CommentsAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -31,7 +35,7 @@ class CommentsAdmin(admin.ModelAdmin):
         ),
      )
 
-    list_display = ('name', 'content_type', 'object_pk', 'ip_address', 'submit_date', 'is_public', 'is_removed')
+    list_display = ('name', 'content_type', 'comment', comment_url, 'submit_date', 'is_public', 'is_removed')
     list_filter = ('submit_date', 'site', 'is_public', 'is_removed')
     date_hierarchy = 'submit_date'
     ordering = ('-submit_date',)
