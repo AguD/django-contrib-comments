@@ -46,14 +46,14 @@ function post_comment(e){
 // $(document).on("keypress",".comentario", enter_key);
 
 $(document).ready(function() {
-    $(".comments-list").on({
+    $(".container").on({
         mouseenter: function() {
             $(this).find(".vote_buttons").addClass("in");
         }, mouseleave: function() {
             $(this).find(".vote_buttons").removeClass("in");
         }
-    }, ".comment")
+    }, ".comments-list .comment")
 
     // SUBMIT COMMENT
-    $(".comment-form").on("submit", post_comment);
+    $(".container").on("submit", ".comment-form", post_comment);
 });
