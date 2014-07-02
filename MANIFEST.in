@@ -1,0 +1,5 @@
+recursive-include django_comments *.py
+recursive-include django_comments/static *
+recursive-include django_comments/templates *.html
+include *.txt
+include README.rst
