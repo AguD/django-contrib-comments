@@ -1,0 +1,6 @@
+{% load comments i18n %}
+{% url 'login' as login_url %}
+<div class="alert alert-info alert-dismissible" role="alert">
+  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+  <p class="text-center">{% blocktrans %}<a class="alert-link login" href="{{ login_url }}" data-toggle="modal" data-target="#myModal">Sign in</a> to participate!{% endblocktrans %}</p>
+</div>

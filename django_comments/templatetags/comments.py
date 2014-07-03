@@ -166,6 +166,8 @@ class RenderCommentFormNode(CommentFormNode):
     def render(self, context):
         ctype, object_pk = self.get_target_ctype_pk(context)
         if object_pk:
+            if not context.get('user').is_authenticated():
+                return render_to_string("comments/non_authenticated.html", context)
             template_search_list = [
                 "comments/%s/%s/form.html" % (ctype.app_label, ctype.model),
                 "comments/%s/form.html" % ctype.app_label,
