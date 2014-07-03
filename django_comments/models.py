@@ -47,7 +47,7 @@ class Comment(BaseCommentAbstractModel):
     A user comment about some object.
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_('user'),
-                    blank=True, null=True, related_name="%(class)s_comments")
+                     related_name="%(class)s_comments")
     comment = models.TextField(_('comment'), max_length=COMMENT_MAX_LENGTH)
 
     # Metadata about the comment

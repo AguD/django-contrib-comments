@@ -11,6 +11,7 @@ from django.utils.html import escape
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse_lazy
+from django.contrib.auth.decorators import login_required
 
 import django_comments
 from django_comments import signals
@@ -183,8 +184,7 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
     def form_valid(self, form):
         comment = form.get_comment_object()
         comment.ip_address = self.request.META.get("REMOTE_ADDR", None)
-        if self.request.user.is_authenticated():
-            comment.user = self.request.user
+        comment.user = self.request.user
         # Signal that the comment is about to be saved
         responses = signals.comment_will_be_posted.send(
             sender=comment.__class__,
@@ -219,4 +219,4 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
         )
         return dict(success=True, comment_html=comment_html)
 
-post_comment = CommentView.as_view()
+post_comment = login_required(CommentView.as_view())
