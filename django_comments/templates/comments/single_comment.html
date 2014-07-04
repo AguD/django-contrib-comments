@@ -1,17 +1,31 @@
-{% load qhonuskan_votes static %}
-{% load thumbnail %}
+{% load i18n qhonuskan_votes static thumbnail comments %}
+{% trans "Answer" as verb %}
+{% get_comment_count for comment as count %}
 <div class="media comment{% if faded %} fade{% endif %}" id="c{{comment.id}}">
   <a class="pull-left" href="">
-      <img src="{{ comment.user.image.thumb.url }}" class="media-object image-user"/>
+      <img src="{{ comment.user.image.thumb.url }}" class="media-object image-user" width="50"/>
   </a> 
   <div class="media-body"> 
-      <div class="media-heading">
-        <a class="lead{% if comment.user.is_staff %} is-staff{% endif %}" href="">
-          <strong>{{ comment.user }}</strong>
-        </a>
-        {% vote_buttons_for comment %}
-      </div>        
-      <p>{{ comment.comment|linebreaksbr }}</p>
-      <small class="text-muted">{{ comment.submit_date|date:"d \d\e F \a \l\a\s G:i \h\s\." }}</small>
+    <div class="media-heading">
+      <a class="lead{% if comment.user.is_staff %} is-staff{% endif %}" href="#">
+        <strong>{{ comment.user }}</strong>
+      </a>
+      {% vote_buttons_for comment %}
+    </div>        
+    <p>{{ comment.comment|linebreaksbr }}</p>
+    <small class="text-muted">
+    <a class="answers" href="#">{{ verb }}</a> - {% if count %}<a class="answers" href="#">{% trans 'Asnwers' %}({{ count }})</a> - {% endif %}{{ comment.submit_date|date:"d \d\e F \a \l\a\s G:i \h\s\." }}
+    </small>
+    <div class="comments-box hidden fade" id="comment-list{{comment.id}}">
+    {% render_comment_list for comment %}
+    </div>
+    <div class="media answer-form hidden fade" id="comment-form{{comment.id}}">
+      <img class="pull-left" src="{{ user.thumb_url }}" class="user-thumb" width="50" />
+      <div class="media-body">
+        {% with submit_value=verb %}
+        {% render_comment_form for comment %}
+        {% endwith %}
+      </div>
+    </div>
   </div>
 </div>

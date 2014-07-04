@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-03 00:27-0300\n"
+"POT-Creation-Date: 2014-07-04 00:10-0300\n"
 "PO-Revision-Date: 2012-02-14 13:24+0000\n"
 "Last-Translator: Jannis Leidel <jannis@leidel.info>\n"
 "Language-Team: Spanish (Argentina) (http://www.transifex.com/projects/p/"
@@ -53,8 +53,6 @@ msgstr[0] "un comentario fue %(action)s satisfactoriamente."
 msgstr[1] "%(count)s comentarios fueron %(action)s satisfactoriamente"
 
 #: apps.py:8
-#, fuzzy
-#| msgid "Comment"
 msgid "Comments"
 msgstr "Comentario"
 
@@ -191,9 +189,13 @@ msgstr "Eliminar"
 msgid "Thanks for removing"
 msgstr "¡Gracias por eliminar!"
 
-#: templates/comments/form.html:18 templates/comments/preview.html:32
+#: templates/comments/form.html:2 templates/comments/preview.html:32
 msgid "Post"
 msgstr "Comentar"
+
+#: templates/comments/form.html:19
+msgid "Uploading.."
+msgstr "Subiendo.."
 
 #: templates/comments/non_authenticated.html:5
 #, python-format
@@ -233,6 +235,14 @@ msgstr "o realice modificaciones"
 #: templates/comments/preview.html:33
 msgid "Preview"
 msgstr "Previsualización"
+
+#: templates/comments/single_comment.html:2
+msgid "Answer"
+msgstr "Responder"
+
+#: templates/comments/single_comment.html:16
+msgid "Asnwers"
+msgstr "Respuestas"
 
 #~ msgid ""
 #~ "This comment was posted by an authenticated user and thus the name is "
