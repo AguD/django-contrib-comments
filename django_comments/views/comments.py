@@ -176,9 +176,9 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
             template_list, {
                 "comment": form.data.get("comment", ""),
                 "form": form,
-                "next": data.get("next", next),
+                "next": form.data.get("next", next),
             },
-            RequestContext(request, {})
+            RequestContext(self.request, {})
         )
 
     def form_valid(self, form):
@@ -215,7 +215,8 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
                 'comment': self.object,
                 'user': self.request.user,
                 'faded': True
-            }
+            },
+            context_instance = RequestContext(self.request) # For csrf token
         )
         return dict(success=True, comment_html=comment_html)
 
