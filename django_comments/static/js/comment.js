@@ -15,9 +15,8 @@ function post_comment(e){
         comment_field = form.find("#id_comment"),
         comment = comment_field.val(),
         subButton = form.find(':input[type="submit"]'),
-        cid = $(this).closest('.comment').attr('id').slice(1),
-        comments_box = $('#comment-list'+cid);
-
+        comments_list = form.closest('.comments-box').children('.comments-list');
+    // Check to see if this is a form for a comment instead of other objects
     e.preventDefault();
     comment = replace_breaklines(comment);
     if (!comment) return false;
@@ -32,7 +31,7 @@ function post_comment(e){
             focusError();
         } else if (response.success) {
             comment = $(response.comment_html);
-            comments_box.append(comment);
+            comments_list.append(comment);
             comment.fadeIn("slow", function() {
                 comment.addClass('in');
             });
@@ -56,15 +55,14 @@ $(document).ready(function() {
             //mouseenter the child, mouseleave it, and we miss the parent's mouseleave
             $(this).find(".vote_buttons:first").removeClass("in");
         }
-    }, ".comments-list .comment")
+    }, ".comments-list .comment");
 
     // SUBMIT COMMENT
     $(".container").on("submit", ".comment-form", post_comment);
     $(".container").on("click", ".comment .answers", function(e){
-        cid = $(this).closest('.comment').attr('id').slice(1)
-        // Show the form to answer a comment
-        $('#comment-form'+cid).removeClass('hidden').addClass('in');
-        $('#comment-list'+cid).removeClass('hidden').addClass('in').focus();
+        cid = $(this).closest('.comment').attr('id').slice(1);
+        // Show the comment-box including list of commetns and form
+        $('#comment-box'+cid).removeClass('hidden').addClass('in');
         e.preventDefault();
     });
 });

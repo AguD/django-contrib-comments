@@ -1,21 +1,23 @@
 {% load comments i18n %}
 {% trans "Post" as action %}
-<form class="comment-form" action="{% comment_form_target %}" method="post">{% csrf_token %}
-  {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
-  {% for field in form %}
-    {% if field.is_hidden %}
-      <div>{{ field }}</div>
-    {% else %}
-      {% if field.errors %}{{ field.errors }}{% endif %}
-      <p
-        {% if field.errors %} class="error"{% endif %}
-        {% ifequal field.name "honeypot" %} style="display:none;"{% endifequal %}>
-        {{ field }}
+<div class="media">
+  <img class="pull-left" src="{{ user.thumb_url }}" class="user-thumb" width="50" />
+  <div class="media-body">
+    <form class="comment-form" action="{% comment_form_target %}" method="post">
+      {% include 'form_boilerplate.html' %}
+      {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
+      {% for field in form.visible_fields %}
+        {% if field.errors %}{{ field.errors }}{% endif %}
+        <p
+          {% if field.errors %} class="error"{% endif %}
+          {% ifequal field.name "honeypot" %} style="display:none;"{% endifequal %}>
+          {{ field }}
+        </p>
+      {% endfor %}
+      <span class="help-inline text-success" id="counter"></span>
+      <p class="submit">
+        <input type="submit" name="post" data-loading-text="{% trans 'Uploading..' %}" class="btn btn-primary" value="{{ submit_value|default:action }}" />
       </p>
-    {% endif %}
-  {% endfor %}
-  <span class="help-inline text-success" id="counter"></span>
-  <p class="submit">
-    <input type="submit" name="post" data-loading-text="{% trans 'Uploading..' %}" class="btn btn-primary" value="{{ submit_value|default:action }}" />
-  </p>
-</form>
+    </form>
+  </div>
+</div>

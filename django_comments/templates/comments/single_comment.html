@@ -16,16 +16,11 @@
     <small class="text-muted">
     <a class="answers" href="#">{{ verb }}</a> - {% if count %}<a class="answers" href="#">{% trans 'Asnwers' %}({{ count }})</a> - {% endif %}{{ comment.submit_date|date:"d \d\e F \a \l\a\s G:i \h\s\." }}
     </small>
-    <div class="comments-box hidden fade" id="comment-list{{comment.id}}">
-    {% render_comment_list for comment %}
-    </div>
-    <div class="media answer-form hidden fade" id="comment-form{{comment.id}}">
-      <img class="pull-left" src="{{ user.thumb_url }}" class="user-thumb" width="50" />
-      <div class="media-body">
-        {% with submit_value=verb %}
-        {% render_comment_form for comment %}
-        {% endwith %}
-      </div>
+    <div class="comments-box hidden fade" id="comment-box{{comment.id}}">
+      {% render_comment_list for comment %}
+      {% with submit_value=verb %}
+      {% render_comment_form for comment %}
+      {% endwith %}
     </div>
   </div>
 </div>
