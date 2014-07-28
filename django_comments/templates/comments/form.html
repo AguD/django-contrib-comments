@@ -1,7 +1,7 @@
 {% load comments i18n %}
 {% trans "Post" as action %}
 <div class="media">
-  <img class="pull-left" src="{{ user.thumb_url }}" class="user-thumb" width="50" />
+  <img class="pull-left" src="{{ user.avatar_url }}" class="user-thumb" width="50" />
   <div class="media-body">
     <form class="comment-form" action="{% comment_form_target %}" method="post">
       {% include 'form_boilerplate.html' %}
