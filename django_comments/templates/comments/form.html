@@ -1,9 +1,9 @@
 {% load comments i18n %}
 {% trans "Post" as action %}
-<div class="media">
+<div class="media comment-form">
   <img class="pull-left" src="{{ user.avatar_url }}" class="user-thumb" width="50" />
   <div class="media-body">
-    <form class="comment-form" action="{% comment_form_target %}" method="post">
+    <form action="{% comment_form_target %}" method="post">
       {% include 'form_boilerplate.html' %}
       {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
       {% for field in form.visible_fields %}

@@ -58,11 +58,27 @@ $(document).ready(function() {
     }, ".comments-list .comment");
 
     // SUBMIT COMMENT
-    $(".container").on("submit", ".comment-form", post_comment);
+    $(".container").on("submit", ".comment-form form", post_comment);
     $(".container").on("click", ".comment .answers", function(e){
-        cid = $(this).closest('.comment').attr('id').slice(1);
-        // Show the comment-box including list of commetns and form
-        $('#comment-box'+cid).removeClass('hidden').addClass('in');
         e.preventDefault();
+        var cid = $(this).closest('.comment').attr('id').slice(1);
+        var current_box = $('#comment-box'+cid);
+        var parents_boxes = $(this).parents('.comments-box');
+        // Exclude parents comments boxes and current element
+        var exclude = $.merge($.merge([], parents_boxes), current_box);
+        // Hide displayed boxes except for parents (they hold this box)
+        $('.comments-box').not(exclude)
+            .removeClass('in')
+            .addClass('hidden');
+        // Show current box
+        current_box.children('.comment-form').removeClass('hidden')
+        current_box
+            .removeClass('hidden')
+            .one($.support.transition.end, function(){
+                current_box.addClass('in');                
+            })
+            .emulateTransitionEnd(200);
+        // In parents boxes only hide forms, except main parent.
+        parents_boxes.not('.main').children('.comment-form').addClass('hidden');
     });
 });
