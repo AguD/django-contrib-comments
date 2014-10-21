@@ -12,7 +12,7 @@ function enter_key(evt){
 
 function post_comment(e){
     var form = $(this),
-        comment_field = form.find("#id_comment"),
+        comment_field = form.find(".comment-input"),
         comment = comment_field.val(),
         subButton = form.find(':input[type="submit"]'),
         comments_list = form.closest('.comments-box').children('.comments-list');
