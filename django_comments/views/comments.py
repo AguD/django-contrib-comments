@@ -200,6 +200,12 @@ class CommentView(CsrfProtectMixin, AjaxifiedFormView):
             },
             context_instance = RequestContext(self.request) # For csrf token
         )
-        return dict(success=True, comment_html=comment_html)
+        res = {'comment_html': comment_html}
+        comments_made = self.request.user.comment_comments.count()
+        if comments_made == 1:
+            res.update({
+                'first_comment': True
+            })
+        return res
 
 post_comment = login_required(CommentView.as_view())
