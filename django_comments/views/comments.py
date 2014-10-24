@@ -4,7 +4,8 @@ from django import http
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
+from django.contrib.contenttypes.models import ContentType
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.html import escape
@@ -125,42 +126,23 @@ comment_done = confirmation_view(
 class CommentView(CsrfProtectMixin, AjaxifiedFormView):
     http_method_names = ['post'] #Only accept post calls
     template_name = "comments/form.html"
-    form_class = django_comments.get_form()
     next = None
 
     def post(self, request, *args, **kwargs):
         data = request.POST.copy()
-        # Look up the object we're trying to comment about
-        ctype = data.get("content_type")
-        object_pk = data.get("object_pk")
+        ctype = data.get("content_type", None)        
+        object_pk = data.get("object_pk", None)
         if ctype is None or object_pk is None:
             return CommentPostBadRequest("Missing content_type or object_pk field.")
-        try:
-            self.target_model = models.get_model(*ctype.split(".", 1))
-            target = self.target_model._default_manager.get(pk=object_pk)
-        except TypeError:
-            return CommentPostBadRequest(
-                "Invalid content_type value: %r" % escape(ctype))
-        except AttributeError:
-            return CommentPostBadRequest(
-                "The given content-type %r does not resolve to a valid model." % \
-                    escape(ctype))
-        except ObjectDoesNotExist:
-            return CommentPostBadRequest(
-                "No object matching content-type %r and object PK %r exists." % \
-                    (escape(ctype), escape(object_pk)))
-        except (ValueError, ValidationError) as e:
-            return CommentPostBadRequest(
-                "Attempting go get content-type %r and object PK %r exists raised %s" % \
-                    (escape(ctype), escape(object_pk), e.__class__.__name__))
-        preview = "preview" in data
+        ctype = get_object_or_404(ContentType, model=ctype.split('.',1)[1])
+        target = get_object_or_404(\
+                        ctype.model_class(), pk=object_pk)
         form = django_comments.get_form()(target, data=data)
         # Check security information
         if form.security_errors():
             return CommentPostBadRequest(
                 "The comment form failed security verification: %s" % \
                     escape(str(form.security_errors())))
-
         if form.is_valid():
             return self.form_valid(form)
         if form.errors or preview:
